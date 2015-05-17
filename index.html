@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Calculadora de salário</title>
+
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
+
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+
+    <script src="index.js"></script>
+    <script src="utils/inss.js"></script>
+</head>
+<body ng-app="salary-app">
+
+<div class="container" ng-controller="MainController as main">
+
+    <div class="page-header">
+        <h1>Calculadora de Salário</h1>
+        <p>Converte entre CLT e PJ</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <form>
+                <div class="form-group">
+                    <label for="salary">Salário</label>
+                    <input class="form-control" id="salary" type="text" ng-model="main.salary" ng-change="main.update()"/>
+                </div>
+            </form>
+
+            <table class="table table-condensed">
+                <tr>
+                    <th>Item</th>
+                    <th>Valor</th>
+                </tr>
+                <tr>
+                    <td>INSS descontado</td>
+                    <td>{{ main.format(-main.inss) }}</td>
+                </tr>
+                <tr>
+                    <td>Base de cálculo IR</td>
+                    <td>{{ main.format(main.baseIR) }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+
+</body>
+</html>
