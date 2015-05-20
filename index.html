@@ -12,44 +12,187 @@
     <script src="bower_components/angular/angular.js"></script>
 
     <script src="index.js"></script>
+    <script src="utils/taxBrackets.js"></script>
     <script src="utils/inss.js"></script>
+    <script src="utils/irpf.js"></script>
+    <script src="utils/profitSharing.js"></script>
+    <script src="utils/minimumWage.js"></script>
 </head>
 <body ng-app="salary-app">
 
 <div class="container" ng-controller="MainController as main">
 
     <div class="page-header">
-        <h1>Calculadora de Salário</h1>
-        <p>Converte entre CLT e PJ</p>
+        <h1>Calculadora de Salário CLT</h1>
     </div>
 
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-6">
             <form>
                 <div class="form-group">
-                    <label for="salary">Salário</label>
+                    <label for="salary">Salário Bruto (R$)</label>
                     <input class="form-control" id="salary" type="text" ng-model="main.salary" ng-change="main.update()"/>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form>
+                <div class="form-group">
+                    <label for="voucher">Vale Transporte (R$)</label>
+                    <input id="voucher" type="text" class="form-control" ng-model="main.transportationVoucher" ng-change="main.update()"/>
+                </div>
+                <div class="form-group">
+                    <label for="ticket">Vale Refeição (R$)</label>
+                    <input id="ticket" type="text" class="form-control" ng-model="main.foodTicket" ng-change="main.update()"/>
+                </div>
+                <div class="form-group">
+                    <label for="health">Plano de Saúde (R$)</label>
+                    <input id="health" type="text" class="form-control" ng-model="main.healthInsurance" ng-change="main.update()"/>
+                </div>
+                <div class="form-group">
+                    <label for="profit-sharing">PLR (R$)</label>
+                    <input class="form-control" id="profit-sharing" type="text" ng-model="main.profitSharing" ng-change="main.update()" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+
+            <h2>Compensação Anual</h2>
+
+            <table class="table table-condensed">
+                <tr>
+                    <th>Item</th>
+                    <th>Valor (R$)</th>
+                </tr>
+                <tr>
+                    <td>12 salários líquidos</td>
+                    <td>{{ main.format(main.netSalary * 12) }}</td>
+                </tr>
+                <tr>
+                    <td>13º salário líquido</td>
+                    <td>{{ main.format(main.thirteenthSalary) }}</td>
+                </tr>
+                <tr>
+                    <td>Férias líquido</td>
+                    <td>{{ main.format(main.netVacationSalary) }}</td>
+                </tr>
+                <tr>
+                    <td>PLR</td>
+                    <td>{{ main.format(main.netProfitSharing) }}</td>
+                </tr>
+                <tr>
+                    <td>Benefícios anuais</td>
+                    <td>{{ main.format(main.benefits * 12) }}</td>
+                </tr>
+                <tr>
+                    <td>FGTS</td>
+                    <td>{{ main.format(main.fgts) }}</td>
+                </tr>
+                <tr class="active">
+                    <td>Total líquido anual</td>
+                    <td>{{ main.format(main.total) }}</td>
+                </tr>
+                <tr class="active">
+                    <td>Total líquido anual / 12</td>
+                    <td>{{ main.format(main.totalByMonth) }}</td>
+                </tr>
+            </table>
+
+        </div>
+        <div class="col-md-6">
+
+            <h2>Equivalente PJ</h2>
+
+            <form>
+                <div class="form-group">
+                    <label for="tax-simples">Imposto Simples (%)</label>
+                    <input class="form-control" id="tax-simples" type="text" ng-model="main.taxSimples"
+                           ng-change="main.updateContractor()"/>
+
+                    <label for="accountant-costs">Depesas com contador (R$)</label>
+                    <input class="form-control" id="accountant-costs" type="text" ng-model="main.accountantCosts"
+                           ng-change="main.updateContractor()"/>
                 </div>
             </form>
 
             <table class="table table-condensed">
                 <tr>
                     <th>Item</th>
-                    <th>Valor</th>
+                    <th>Valor (R$)</th>
                 </tr>
                 <tr>
-                    <td>INSS descontado</td>
-                    <td>{{ main.format(-main.inss) }}</td>
-                </tr>
-                <tr>
-                    <td>Base de cálculo IR</td>
-                    <td>{{ main.format(main.baseIR) }}</td>
+                    <td>Salário bruto</td>
+                    <td>{{ main.format(main.grossContractorSalary) }}</td>
                 </tr>
             </table>
+
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-md-6">
 
+            <h2>Salário base</h2>
+
+            <table class="table table-condensed">
+                <tr>
+                    <th>Item</th>
+                    <th>Valor (R$)</th>
+                </tr>
+                <tr>
+                    <td>INSS</td>
+                    <td>{{ main.format(-main.inss) }}</td>
+                </tr>
+                <tr class="active">
+                    <td>Base de cálculo IR</td>
+                    <td>{{ main.format(main.baseIR) }}</td>
+                </tr>
+                <tr ng-repeat="rangeValue in main.rangesIR track by $index">
+                    <td>{{ $index+1 }}ª faixa</td>
+                    <td>{{ main.format(-rangeValue) }}</td>
+                </tr>
+                <tr>
+                    <td>Total descontado IR</td>
+                    <td>{{ main.format(-main.totalIR) }} ({{ main.totalIRPerc }}% sobre o base)</td>
+                </tr>
+                <tr class="active">
+                    <td>Líquido</td>
+                    <td>{{ main.format(main.netSalary) }}</td>
+                </tr>
+            </table>
+
+        </div>
+        <div class="col-md-6">
+
+            <h2>PLR</h2>
+
+            <table class="table table-condensed">
+                <tr>
+                    <th>Item</th>
+                    <th>Valor (R$)</th>
+                </tr>
+                <tr class="active">
+                    <td>Base de cálculo da PLR</td>
+                    <td>{{ main.format(main.basePS) }}</td>
+                </tr>
+                <tr ng-repeat="rangeValue in main.rangesPS track by $index">
+                    <td>{{ $index+1 }}ª faixa</td>
+                    <td>{{ main.format(-rangeValue) }}</td>
+                </tr>
+                <tr>
+                    <td>Total descontado IR</td>
+                    <td>{{ main.format(-main.totalPS) }} ({{ main.totalPSPerc }}% sobre o base)</td>
+                </tr>
+                <tr class="active">
+                    <td>PLR Líquida</td>
+                    <td>{{ main.format(main.netProfitSharing) }}</td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
 </div>
 
 </body>
