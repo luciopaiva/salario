@@ -92,7 +92,7 @@
             rangesIR: [],
             grossContractorSalary: 0,
             accountantCosts: Math.ceil(minWageService.get() / 200),
-            taxSimples: 5,
+            taxSimples: 6,
             update: updateValues,
             updateContractor: updateContractor,
             format: format
