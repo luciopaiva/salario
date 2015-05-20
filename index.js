@@ -51,13 +51,13 @@
 
             vm.basePS = profitSharingInCents;
             vm.rangesPS = psService.calculate(vm.basePS);
-            vm.totalPSTax = vm.rangesPS.reduce(sum, 0);
+            vm.totalPS = vm.rangesPS.reduce(sum, 0);
             if (vm.basePS) {
-                vm.totalPSPerc = (100 * (vm.totalPSTax / vm.basePS)).toFixed(1);
+                vm.totalPSPerc = (100 * (vm.totalPS / vm.basePS)).toFixed(1);
             } else {
                 vm.totalPSPerc = 0;
             }
-            vm.netProfitSharing = vm.basePS - vm.totalPSTax;
+            vm.netProfitSharing = vm.basePS - vm.totalPS;
 
             vm.benefits = transportationVoucher + foodTicket + healthInsurance;
             vm.total = 12 * vm.netSalary + vm.thirteenthSalary + vm.netVacationSalary +
@@ -93,6 +93,7 @@
             grossContractorSalary: 0,
             accountantCosts: Math.ceil(minWageService.get() / 200),
             taxSimples: 6,
+            totalPS: 0,
             update: updateValues,
             updateContractor: updateContractor,
             format: format
